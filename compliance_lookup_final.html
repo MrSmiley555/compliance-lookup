@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>دليل مسؤولي الالتزام</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; padding: 20px; background: #f0f4f4; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .autocomplete-items { position: absolute; border: 1px solid #ccc; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: #fff; max-height: 200px; overflow-y: auto; }
+        .autocomplete-items div { padding: 10px; cursor: pointer; background-color: #fff; border-bottom: 1px solid #ccc; }
+        .autocomplete-items div:hover { background-color: #e0f0f0; }
+        input[type=text] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+        .result { background: #e9f7ef; padding: 15px; border-radius: 5px; margin-top: 20px; border-right: 5px solid #005c5c; }
+        .result strong { display: block; margin-bottom: 5px; color: #005c5c; }
+        button { background: #cfa44b; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .autocomplete { position: relative; display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>بحث عن مسؤول الالتزام</h2>
+        <div class="autocomplete">
+            <input type="text" id="companyInput" placeholder="أدخل اسم الشركة...">
+        </div>
+        <button onclick="searchCompany()">بحث</button>
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        const data = {
+"ار ام اس وسطاء تأمين": { business: "سمسار تأمين", name: "ريتيش باراخ`", phone: "99863000", email: "riteshp@rmsllc.com" },
+"الشركة الأمريكية للتأمين على الحياة (متلايف)": { business: "شركة تأمين", name: "أحمر باقر محمد جواد اللواتي", phone: "94212885", email: "ahmed.b.lawati@metlife.com.om" },
+"الشركة العمانية المتحدة للتأمين": { business: "شركة تأمين", name: "السيد بلعرب بن يعرب بن قحطان البوسعيدي", phone: "77385497", email: "Balarab.b@omanutd.com" },
+"الشركة العمانية لإعادة التأمين": { business: "شركة إعادة التأمين", name: "طلال محمود الحسيني", phone: "95309338", email: "thusaini@omanre.com.om" },
+"العمانية القطرية للتأمين": { business: "شركة تأمين", name: "جواهر خلفان سعيد الغساني", phone: "99544441", email: "jawahar.alghassani@oqic.com" },
+"المنثور تجارة ذ م م": { business: "وكلاء التأمين", name: "إبراهيم الشبيبي", phone: "91181488", email: "ibrahim-9269@hotmail.com" },
+"بيت التأمين": { business: "سمسار تأمين", name: "قصي حمود الراشدي", phone: "98849412", email: "qusay.rashdi@bima.om" },
+"حماية لخدمات التأمين": { business: "سمسار تأمين", name: "نون عمران", phone: "72225501", email: "legal@himayainsurance.com" },
+"شركة التأمين الإيرانية": { business: "شركة تأمين", name: "سعيد بن عبدالله بن ناصر النظيري", phone: "24568506", email: "said@bimehir.com.om" },
+"شركة التأمين العربية السعودية ش.م.ب(م)": { business: "شركة تأمين", name: "شميسه سعيد العبد الحجري", phone: "92410733", email: "salhajri@damana.com" },
+"شركة التأمين العربية المحدودة": { business: "شركة تأمين", name: "تميــــــم رمــــزي عبد العزيز", phone: "92856333", email: "tabdullaziz@arabiainsurance.com" }
+};
+
+        const input = document.getElementById("companyInput");
+        input.addEventListener("input", function () {
+            closeAllLists();
+            const val = this.value;
+            if (!val) return false;
+            const divList = document.createElement("div");
+            divList.setAttribute("id", this.id + "-autocomplete-list");
+            divList.setAttribute("class", "autocomplete-items");
+            this.parentNode.appendChild(divList);
+            for (let company in data) {
+                if (company.includes(val)) {
+                    const item = document.createElement("div");
+                    item.innerHTML = "<strong>" + company.substr(0, val.length) + "</strong>" + company.substr(val.length);
+                    item.addEventListener("click", function () {
+                        input.value = company;
+                        closeAllLists();
+                        searchCompany();
+                    });
+                    divList.appendChild(item);
+                }
+            }
+        });
+
+        function closeAllLists(elmnt) {
+            const items = document.getElementsByClassName("autocomplete-items");
+            for (let i = 0; i < items.length; i++) {
+                if (elmnt !== items[i] && elmnt !== input) {
+                    items[i].parentNode.removeChild(items[i]);
+                }
+            }
+        }
+
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+
+        function searchCompany() {
+            const val = document.getElementById("companyInput").value.trim();
+            const resultBox = document.getElementById("result");
+            if (data[val]) {
+                const entry = data[val];
+                resultBox.innerHTML = `
+                    <strong>اسم الشركة:</strong> ${val}<br>
+                    <strong>أعمال الشركة:</strong> ${entry.business || 'غير متوفر'}<br>
+                    <strong>اسم المسؤول:</strong> ${entry.name}<br>
+                    <strong>رقم الهاتف:</strong> ${entry.phone}<br>
+                    <strong>البريد الإلكتروني:</strong> ${entry.email}
+                `;
+                resultBox.style.display = 'block';
+            } else {
+                resultBox.innerHTML = "لم يتم العثور على الشركة. تأكد من كتابة الاسم بشكل صحيح.";
+                resultBox.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
