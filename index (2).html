@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>دليل مسؤولي الالتزام</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; padding: 20px; background: #e0f7fa; }
+        .container { max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,95,115,0.3); border: 1px solid #005f73; }
+        .autocomplete-items { position: absolute; border: 1px solid #005f73; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: #fff; max-height: 200px; overflow-y: auto; }
+        .autocomplete-items div { padding: 10px; cursor: pointer; background-color: #fff; border-bottom: 1px solid #ccecee; }
+        .autocomplete-items div:hover { background-color: #f0feff; }
+        input[type=text] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #005f73; border-radius: 5px; }
+        .result { background: #e0f7fa; padding: 15px; border-radius: 5px; margin-top: 20px; border-right: 5px solid #005f73; white-space: pre-line; }
+        .result strong { display: block; margin-bottom: 5px; color: #005f73; }
+        button { background: #005f73; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #0a6b6b; }
+        .autocomplete { position: relative; display: block; }
+        footer { text-align: center; margin-top: 40px; font-size: 14px; color: #004f6c; }
+        footer p { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="color: #005f73;">بحث عن مسؤول الالتزام</h2>
+        <div class="autocomplete">
+            <input type="text" id="companyInput" placeholder="أدخل اسم الشركة...">
+        </div>
+        <button onclick="searchCompany()">بحث</button>
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        let data = {};
+
+        async function loadData() {
+            try {
+                const response = await fetch('data.json');
+                data = await response.json();
+            } catch (e) {
+                console.error('Error loading data:', e);
+                alert('تعذر تحميل البيانات. تأكد من وجود data.json في نفس المجلد.');
+            }
+        }
+        loadData();
+
+        const input = document.getElementById('companyInput');
+        input.addEventListener('input', function() {
+            closeAllLists();
+            const val = this.value.trim();
+            if (!val || Object.keys(data).length === 0) return;
+            const list = document.createElement('div');
+            list.setAttribute('class', 'autocomplete-items');
+            this.parentNode.appendChild(list);
+            for (const company in data) {
+                if (company.includes(val)) {
+                    const item = document.createElement('div');
+                    item.innerHTML = '<strong>' + company.substr(0, val.length) + '</strong>' + company.substr(val.length);
+                    item.addEventListener('click', () => {
+                        input.value = company;
+                        closeAllLists();
+                        searchCompany();
+                    });
+                    list.appendChild(item);
+                }
+            }
+        });
+
+        function closeAllLists(el) {
+            document.querySelectorAll('.autocomplete-items').forEach(x => {
+                if (x !== el) x.remove();
+            });
+        }
+        document.addEventListener('click', e => closeAllLists(e.target));
+
+        function searchCompany() {
+            const val = input.value.trim();
+            const box = document.getElementById('result');
+            if (data[val]) {
+                const entry = data[val];
+                box.innerHTML =
+                    '<strong>اسم الشركة:</strong> ' + val + '\n' +
+                    '<strong>أعمال الشركة:</strong> ' + entry.business + '\n' +
+                    '<strong>اسم المسؤول:</strong> ' + entry.name + '\n' +
+                    '<strong>رقم الهاتف:</strong> ' + entry.phone + '\n' +
+                    '<strong>البريد الإلكتروني:</strong> ' + entry.email;
+                box.style.display = 'block';
+            } else {
+                box.innerHTML = 'لم يتم العثور على الشركة.';
+                box.style.display = 'block';
+            }
+        }
+    </script>
+
+    <footer>
+        <p>جميع الحقوق محفوظة لدائرة تنظيم وترخيص الخدمات</p>
+        <p>(ن)</p>
+    </footer>
+</body>
+</html>
